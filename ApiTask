@@ -1,0 +1,41 @@
+async function sendRequests(endpoint, payloads) {
+  const promises = payloads.map((payload) => {
+    return fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Request failed with status ${response.status}`);
+        }
+        return response.json();
+      })
+      .catch((error) => {
+        return { error: error.message };
+      });
+  });
+
+  const results = await Promise.allSettled(promises);
+
+  return results.map((result) => {
+    if (result.status === "fulfilled") {
+      return { success: true, data: result.value };
+    } else {
+      return { success: false, error: result.reason };
+    }
+  });
+}
+
+const endpoint = "https://667c1e9f3c30891b865b665e.mockapi.io/apiV1/leakedcred";
+const payloads = [
+  { id: 1, name: "Request 1" },
+  { id: 2, name: "Request 2" },
+  { id: 3, name: "Request 3" },
+];
+
+sendRequests(endpoint, payloads).then((results) => {
+  console.log(results);
+});
