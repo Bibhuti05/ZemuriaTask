@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rate Limiting Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+        }
+        .message {
+            margin-top: 20px;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <button id="rateLimitButton">Click Me!</button>
+    <div class="message" id="message"></div>
+    
+    <script>
+        function rateLimitedFunction(fn, limit) {
+            let lastExecuted = 0;
+            return function(...args) {
+                const now = Date.now();
+                if (now - lastExecuted >= limit) {
+                    lastExecuted = now;
+                    return fn.apply(this, args);
+                } else {
+                    const remainingTime = limit - (now - lastExecuted);
+					document.getElementById('rateLimitButton').setAttribute('disabled', '');
+                    document.getElementById('message').innerText = `Please wait ${remainingTime} milliseconds.`;
+                    setTimeout(() => { document.getElementById('rateLimitButton').removeAttribute('disabled'); 
+                    document.getElementById('message').innerText = `ready`;
+                    }, limit)
+                    
+                }
+            };
+        }
+
+        const myFunction = () => {
+            document.getElementById('message').innerText = `Function executed at: ${new Date().toLocaleTimeString()}`;
+        };
+
+        const rateLimitedMyFunction = rateLimitedFunction(myFunction, 2000);
+
+        document.getElementById('rateLimitButton').addEventListener('click', rateLimitedMyFunction);
+    </script>
+</body>
+</html>
