@@ -1,0 +1,31 @@
+function memoize(fn) {
+    const cache = new Map();
+
+    return function(...args) {
+        
+        
+        const key = JSON.stringify(args);
+        
+        //get the result from the cache if its available 
+        if (cache.has(key)) {
+            console.log('Fetching from cache for:', key);
+            return cache.get(key);
+        }
+        
+        //store the result 
+        const result = fn(...args);
+        cache.set(key, result);
+        console.log('Calculating result for:', key);
+        return result;
+    };
+}
+
+const factorial = memoize(function(n) {
+    if (n <= 1) return 1;
+    return n * factorial(n - 1);
+});
+
+console.log("Factorial of 10:", factorial(10));
+
+console.log("Factorial of 10:", factorial(4));
+
